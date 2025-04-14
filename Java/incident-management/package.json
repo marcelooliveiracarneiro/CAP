@@ -7,6 +7,16 @@
   "devDependencies": {
     "@sap/cds-dk": "^8.8.0"
   },
+  "cds": {
+    "requires": {
+      "[development]": {
+        "auth": {
+          "kind": "mocked",
+          "users": {}
+        }
+      }
+    }
+  },
   "sapux": [
     "app/incidents"
   ]
