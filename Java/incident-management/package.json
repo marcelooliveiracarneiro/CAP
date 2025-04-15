@@ -9,5 +9,10 @@
   },
   "sapux": [
     "app/incidents"
-  ]
+  ],
+  "cds": {
+    "requires": {
+      "workzone": true
+    }
+  }
 }
