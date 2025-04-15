@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@cap-js/hana": "^1.8.1",
     "@sap/cds": "^8",
     "@sap/cds-hana": "^2.0.0",
     "express": "^4"
@@ -19,12 +20,32 @@
     "start": "cds-serve",
     "watch-incidents": "cds watch --open incidents/webapp/index.html?sap-ui-xx-viewCache=false"
   },
+  "sql": {
+    "native_hana_associations": false
+  },
   "cds": {
     "requires": {
       "[development]": {
         "auth": {
           "kind": "mocked",
-          "users": {}
+          "users": {
+            "incident.support@tester.sap.com": {
+              "password": "initial",
+              "roles": [
+                "support"
+              ]
+            },
+            "alice": {
+              "roles": [
+                "support"
+              ]
+            },
+            "bob": {
+              "roles": [
+                "support"
+              ]
+            }
+          }
         }
       }
     }
