@@ -10,17 +10,16 @@ build-parameters:
     - builder: custom
       commands:
         - npm ci
-        - npx cds build --production  
+        - npx cds build --production
 modules:
   - name: incident-management-srv
     type: nodejs
     path: gen/srv
     parameters:
+      instances: 1
       buildpack: nodejs_buildpack
-      readiness-health-check-type: http
-      readiness-health-check-http-endpoint: /health
     build-parameters:
-      builder: npm
+      builder: npm-ci
     provides:
       - name: srv-api # required by consumers of CAP services (e.g. approuter)
         properties:
@@ -38,20 +37,43 @@ modules:
     requires:
       - name: incident-management-db
 
+  - name: incident-management
+    type: approuter.nodejs
+    path: app/router
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api # must be used in xs-app.json as well
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: incident-management-auth
+      - name: incident-management-destination
+      - name: incident-management-html5-runtime
+    provides:
+      - name: app-api
+        properties:
+          app-protocol: ${protocol}
+          app-uri: ${default-uri}
+
   - name: incident-management-app-deployer
     type: com.sap.application.content
-    path: .
+    path: gen
     requires:
       - name: incident-management-html5-repo-host
         parameters:
           content-target: true
     build-parameters:
-      build-result: resources/
+      build-result: app/
       requires:
         - name: incidentmanagementincidents
           artifacts:
             - incidents.zip
-          target-path: resources/
+          target-path: app/
 
   - name: incidentmanagementincidents
     type: html5
@@ -103,11 +125,6 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
-  - name: incident-management-html5-repo-host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-plan: app-host
   - name: incident-management-auth
     type: org.cloudfoundry.managed-service
     parameters:
@@ -148,3 +165,13 @@ resources:
           url: ~{srv-url}
           forwardAuthToken: true
 
+  - name: incident-management-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+  - name: incident-management-html5-runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-runtime

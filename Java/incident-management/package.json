@@ -14,5 +14,8 @@
     "requires": {
       "workzone": true
     }
+  },
+  "dependencies": {
+    "jest": "^30.0.0-alpha.7"
   }
 }
